@@ -57,7 +57,7 @@ async function setActivity() {
   // You'll need to have snek_large and snek_small assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
-    details: `${shiny}/${caught} ✨`,
+    details: `Shinies ${shiny}/${caught} ✨`,
     state: `Total Attack: ${attack.toLocaleString('en-US')}`,
     // largeImageKey: 'snek_large',
     // largeImageText: 'tea is delicious',
