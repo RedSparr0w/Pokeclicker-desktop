@@ -54,12 +54,13 @@ async function setActivity() {
 
   const caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
   const shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
+  const attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
 
   // You'll need to have snek_large and snek_small assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
-    state: 'Hunting Shinies',
     details: `${shiny}/${caught} ✨`,
+    state: `Total Attack: ${attack.toLocaleString('en-US')}`,
     // largeImageKey: 'snek_large',
     // largeImageText: 'tea is delicious',
     // smallImageKey: 'snek_small',
