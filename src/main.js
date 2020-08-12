@@ -13,18 +13,13 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 340,
     height: 380,
-    resizable: false,
     titleBarStyle: 'hidden',
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
     },
   });
 
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true,
-  }));
+  mainWindow.loadURL('https://pokeclicker-dev.github.io/pokeclicker/');
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -57,13 +52,14 @@ async function setActivity() {
     return;
   }
 
-  const boops = await mainWindow.webContents.executeJavaScript('window.boops');
+  const caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
+  const shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
 
   // You'll need to have snek_large and snek_small assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
-    details: `${boops}/151 ✨`,
-    state: 'Breeding Pokemon',
+    state: 'Hunting Shinies',
+    details: `${shiny}/${caught} ✨`,
     // largeImageKey: 'snek_large',
     // largeImageText: 'tea is delicious',
     // smallImageKey: 'snek_small',
