@@ -11,14 +11,12 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 340,
-    height: 380,
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: false,
     },
   });
-
+  mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL('https://pokeclicker-dev.github.io/pokeclicker/');
 
   mainWindow.on('closed', () => {
