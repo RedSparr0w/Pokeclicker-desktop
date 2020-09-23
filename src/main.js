@@ -77,7 +77,7 @@ async function setActivity() {
     shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
     attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
   } catch (e) {
-    console.log('Something went wrong, could not gather data', e);
+    console.log('Something went wrong, could not gather data');
   }
 
   // You'll need to have snek_large and snek_small assets uploaded to
@@ -121,6 +121,12 @@ const downloadUpdate = () => {
       });
   
       zip.on('ready', () => {
+          var dir = `${__dirname}/data`;
+
+          if (!fs.existsSync(dir)){
+              fs.mkdirSync(dir);
+          }
+
           zip.extract('pokeclicker-master/docs/', `${__dirname}/data`, err => {
             zip.close();
             if (err) {
