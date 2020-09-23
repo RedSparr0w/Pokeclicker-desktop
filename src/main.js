@@ -114,8 +114,9 @@ const downloadUpdate = async (initial = false) => {
   const file = fs.createWriteStream(zipFilePath);
   https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', async res => {
     let cur = 0;
-
-    console.log(res.headers);
+    try {
+      if (!initial) await mainWindow.webContents.executeJavaScript(`Notifier.notify({ title: '[UPDATER] v${newVersion}', message: 'Downloading Files...<br/>Please Wait...', timeout: 2e4 })`);
+    }catch(e){}
 
     res.on('data', async chunk => {
         cur += chunk.length;
@@ -127,6 +128,7 @@ const downloadUpdate = async (initial = false) => {
     res.pipe(file).on('finish', async () => {
       try {
         if (initial) await mainWindow.webContents.executeJavaScript('setStatus("Files Downloaded!<br/>Extracting Files...")');
+        else await mainWindow.webContents.executeJavaScript(`Notifier.notify({ title: '[UPDATER] v${newVersion}', message: 'Files Downloaded!<br/>Extracting Files...', timeout: 2e4 })`);
       }catch(e){}
 
       const zip = new Zip(zipFilePath);
