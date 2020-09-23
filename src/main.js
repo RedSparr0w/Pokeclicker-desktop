@@ -13,9 +13,6 @@ const Zip = require('adm-zip');
 let checkForUpdatesInterval;
 let newVersion = '0.0.0';
 let currentVersion = '0.0.0';
-try {
-  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
-} catch (e) {}
 
 let mainWindow;
 
@@ -112,19 +109,16 @@ const isNewerVersion = (version) => {
   return version.localeCompare(currentVersion, undefined, { numeric: true }) === 1;
 }
 
-const downloadUpdate = () => {
-  const file = fs.createWriteStream('update.zip');
-  const request = https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', res => {
+const downloadUpdate = (initial = false) => {
+  const zipFilePath = `${__dirname}/update.zip`;
+  const file = fs.createWriteStream(zipFilePath);
+  https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', res => {
     res.pipe(file).on('finish', () => {
-      const zip = new Zip('update.zip');
-  
-      var dir = `${__dirname}/data`;
-
-      if (!fs.existsSync(dir)){
-          fs.mkdirSync(dir);
-      }
+      const zip = new Zip(zipFilePath);
 
       const extracted = zip.extractEntryTo('pokeclicker-master/docs/', `${__dirname}`, true, true);
+
+      fs.unlinkSync(zipFilePath);
 
       if (!extracted) {
         return downloadUpdateFailed();
@@ -132,6 +126,12 @@ const downloadUpdate = () => {
 
       currentVersion = newVersion;
       startUpdateCheckInterval();
+
+      // If this is the initial download, don't ask the user about refreshing the page
+      if (initial) {
+        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
+        return;
+      }
 
       const userResponse = dialog.showMessageBoxSync(mainWindow, {
         title: 'PokeClicker - Update success!',
@@ -142,12 +142,11 @@ const downloadUpdate = () => {
       });
 
       if (userResponse == 0){
-        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`)
+        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
       }
     });
   }).on('error', (e) => {
-    // TODO: Update download failed
-    console.error('update download failed.', e);
+    return downloadUpdateFailed();
   });
 }
 
@@ -225,6 +224,14 @@ const startUpdateCheckInterval = (run_now = false) => {
   if (run_now) checkForUpdates();
 }
 
-setTimeout(() => {
-  startUpdateCheckInterval(true);
-}, 1e4)
+
+try {
+  // If we can get out current version, start checking for updates once the game starts
+  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
+  setTimeout(() => {
+    startUpdateCheckInterval(true);
+  }, 1e4)
+} catch (e) {
+  // Game not downloaded yet
+  downloadUpdate(true);
+}
