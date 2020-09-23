@@ -8,7 +8,7 @@ const url = require('url');
 const DiscordRPC = require('discord-rpc');
 const https = require('https');
 const fs = require('fs');
-const StreamZip = require('node-stream-zip');
+const Zip = require('adm-zip');
 
 let checkForUpdatesInterval;
 let newVersion = '0.0.0';
@@ -16,6 +16,7 @@ let currentVersion = '0.0.0';
 try {
   currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/data/package.json`).toString()).version;
 } catch (e) {}
+currentVersion = '0.0.0';
 
 let mainWindow;
 
@@ -115,39 +116,34 @@ const downloadUpdate = () => {
   const file = fs.createWriteStream('update.zip');
   const request = https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', res => {
     res.pipe(file).on('finish', () => {
-      const zip = new StreamZip({
-          file: 'update.zip',
-          storeEntries: true,
-      });
+      const zip = new Zip('update.zip');
   
-      zip.on('ready', () => {
-          var dir = `${__dirname}/data`;
+      var dir = `${__dirname}/data`;
 
-          if (!fs.existsSync(dir)){
-              fs.mkdirSync(dir);
-          }
+      if (!fs.existsSync(dir)){
+          fs.mkdirSync(dir);
+      }
 
-          zip.extract('pokeclicker-master/docs/', `${__dirname}/data`, err => {
-            zip.close();
-            if (err) {
-              return downloadUpdateFailed();
-            }
-            currentVersion = newVersion;
-            startUpdateCheckInterval();
+      const extracted = zip.extractEntryTo('pokeclicker-master/docs/', `${__dirname}`, true, true);
 
-            const userResponse = dialog.showMessageBoxSync(mainWindow, {
-              title: 'PokeClicker - Update success!',
-              message: `Successfully updated,\nwould you like to reload the page now?`,
-              icon: `${__dirname}/icon.ico`,
-              buttons: ['Yes', 'No'],
-              noLink: true,
-            });
+      if (!extracted) {
+        return downloadUpdateFailed();
+      }
 
-            if (userResponse == 0){
-              mainWindow.loadURL(`file://${__dirname}/data/index.html`)
-            }
-          });
+      currentVersion = newVersion;
+      startUpdateCheckInterval();
+
+      const userResponse = dialog.showMessageBoxSync(mainWindow, {
+        title: 'PokeClicker - Update success!',
+        message: `Successfully updated,\nwould you like to reload the page now?`,
+        icon: `${__dirname}/icon.ico`,
+        buttons: ['Yes', 'No'],
+        noLink: true,
       });
+
+      if (userResponse == 0){
+        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`)
+      }
     });
   }).on('error', (e) => {
     // TODO: Update download failed
