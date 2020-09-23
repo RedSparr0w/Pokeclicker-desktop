@@ -37,6 +37,10 @@ app.on('activate', () => {
   }
 });
 
+/*
+DISCORD STUFF
+*/
+
 // Set this to your Client ID.
 const clientId = '733927271726841887';
 
