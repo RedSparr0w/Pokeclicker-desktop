@@ -109,11 +109,26 @@ const isNewerVersion = (version) => {
   return version.localeCompare(currentVersion, undefined, { numeric: true }) === 1;
 }
 
-const downloadUpdate = (initial = false) => {
+const downloadUpdate = async (initial = false) => {
   const zipFilePath = `${__dirname}/update.zip`;
   const file = fs.createWriteStream(zipFilePath);
-  https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', res => {
-    res.pipe(file).on('finish', () => {
+  https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', async res => {
+    let cur = 0;
+
+    console.log(res.headers);
+
+    res.on('data', async chunk => {
+        cur += chunk.length;
+        try {
+          if (initial) await mainWindow.webContents.executeJavaScript(`setStatus("Downloading Files...<br/>${(cur / 1048576).toFixed(2)} mb")`);
+        }catch(e){}
+    });
+
+    res.pipe(file).on('finish', async () => {
+      try {
+        if (initial) await mainWindow.webContents.executeJavaScript('setStatus("Files Downloaded!<br/>Extracting Files...")');
+      }catch(e){}
+
       const zip = new Zip(zipFilePath);
 
       const extracted = zip.extractEntryTo('pokeclicker-master/docs/', `${__dirname}`, true, true);
@@ -234,4 +249,5 @@ try {
 } catch (e) {
   // Game not downloaded yet
   downloadUpdate(true);
+  console.log('downloading...');
 }
