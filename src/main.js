@@ -12,6 +12,7 @@ let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
+    icon: __dirname + '/icon.ico',
     webPreferences: {
       nodeIntegration: false,
     },
