@@ -2,10 +2,20 @@
 
 /* eslint-disable no-console */
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
 const DiscordRPC = require('discord-rpc');
+const https = require('https');
+const fs = require('fs');
+const StreamZip = require('node-stream-zip');
+
+let checkForUpdatesInterval;
+let newVersion = '0.0.0';
+let currentVersion = '0.0.0';
+try {
+  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/data/package.json`).toString()).version;
+} catch (e) {}
 
 let mainWindow;
 
@@ -14,11 +24,13 @@ function createWindow() {
     titleBarStyle: 'hidden',
     icon: __dirname + '/icon.ico',
     webPreferences: {
-      nodeIntegration: false,
+      webSecurity: false,
+      minWidth: 300,
+      minHeight: 200,
     },
   });
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL('https://pokeclicker-dev.github.io/pokeclicker/');
+  mainWindow.loadURL(`file://${__dirname}/data/index.html`)
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -41,6 +53,7 @@ app.on('activate', () => {
 DISCORD STUFF
 */
 
+
 // Set this to your Client ID.
 const clientId = '733927271726841887';
 
@@ -55,19 +68,27 @@ async function setActivity() {
     return;
   }
 
-  const caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
-  const shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
-  const attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
+  let caught = 0;
+  let shiny = 0;
+  let attack = 0;
+
+  try {
+    caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
+    shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
+    attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
+  } catch (e) {
+    console.log('Something went wrong, could not gather data', e);
+  }
 
   // You'll need to have snek_large and snek_small assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
     details: `Shinies ${shiny}/${caught} ✨`,
     state: `Total Attack: ${attack.toLocaleString('en-US')}`,
-    // largeImageKey: 'snek_large',
-    // largeImageText: 'tea is delicious',
-    // smallImageKey: 'snek_small',
-    // smallImageText: 'i am my own pillows',
+    // largeImageKey: 'image_name',
+    // largeImageText: 'text when hovered',
+    // smallImageKey: 'image_name',
+    // smallImageText: 'text when hovered',
     instance: false,
   });
 }
@@ -82,3 +103,124 @@ rpc.on('ready', () => {
 });
 
 rpc.login({ clientId }).catch(console.error);
+
+/*
+UPDATE STUFF
+*/
+const isNewerVersion = (version) => {
+  return version.localeCompare(currentVersion, undefined, { numeric: true }) === 1;
+}
+
+const downloadUpdate = () => {
+  const file = fs.createWriteStream('update.zip');
+  const request = https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', res => {
+    res.pipe(file).on('finish', () => {
+      const zip = new StreamZip({
+          file: 'update.zip',
+          storeEntries: true,
+      });
+  
+      zip.on('ready', () => {
+          zip.extract('pokeclicker-master/docs/', `${__dirname}/data`, err => {
+            zip.close();
+            if (err) {
+              return downloadUpdateFailed();
+            }
+            currentVersion = newVersion;
+            startUpdateCheckInterval();
+
+            const userResponse = dialog.showMessageBoxSync(mainWindow, {
+              title: 'PokeClicker - Update success!',
+              message: `Successfully updated,\nwould you like to reload the page now?`,
+              icon: `${__dirname}/icon.ico`,
+              buttons: ['Yes', 'No'],
+              noLink: true,
+            });
+
+            if (userResponse == 0){
+              mainWindow.loadURL(`file://${__dirname}/data/index.html`)
+            }
+          });
+      });
+    });
+  }).on('error', (e) => {
+    // TODO: Update download failed
+    console.error('update download failed.', e);
+  });
+}
+
+const downloadUpdateFailed = () => {
+  const userResponse = dialog.showMessageBoxSync(mainWindow, {
+    type: 'error',
+    title: 'PokeClicker - Update failed!',
+    message: `Failed to download or extract the update,\nWould you like to retry?`,
+    icon: `${__dirname}/icon.ico`,
+    buttons: ['Yes', 'No'],
+    noLink: true,
+  });
+
+  if (userResponse == 0) {
+    downloadUpdate();
+  }
+}
+
+const checkForUpdates = () => {
+  const request = https.get('https://raw.githubusercontent.com/pokeclicker/pokeclicker/master/package.json', res => {
+    let body = '';
+
+    res.on('data', d => {
+      body += d;
+    });
+
+    res.on('end', () => {
+      let data = {version:'0.0.0'};
+      try {
+        data = JSON.parse(body);
+        newVersion = data.version;
+        const newVersionAvailable = isNewerVersion(data.version);
+
+        if (newVersionAvailable) {
+          // Stop checking for updates
+          clearInterval(checkForUpdatesInterval);
+          // Check if user want's to update now
+          shouldUpdateNowCheck();
+        }
+      }catch(e) {}
+    });
+  
+  }).on('error', (e) => {
+    // TODO: Update download failed
+    console.warn('Couldn\'t check for updated version, might be offline..');
+  });
+}
+
+const shouldUpdateNowCheck = () => {
+  const userResponse = dialog.showMessageBoxSync(mainWindow, {
+    title: 'PokeClicker - Update available!',
+    message: `There is a new update available (v${newVersion}),\nWould you like to download it now?\n\n`,
+    icon: `${__dirname}/icon.ico`,
+    buttons: ['Update Now', 'Remind Me', 'No (disable check)'],
+    noLink: true,
+  });
+  
+  switch (userResponse) {
+    case 0:
+      downloadUpdate();
+      break;
+    case 1:
+      // Check again in 1 hour
+      setTimeout(shouldUpdateNowCheck, 36e5)
+      break;
+    case 2:
+      console.log('Disabled, stop checking for updates');
+      break;
+  }
+}
+
+const startUpdateCheckInterval = (run_now = false) => {
+  // Check for updates every hour
+  checkForUpdatesInterval = setInterval(checkForUpdates, 36e5)
+  if (run_now) checkForUpdates();
+}
+
+startUpdateCheckInterval(true);
