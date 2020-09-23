@@ -225,4 +225,6 @@ const startUpdateCheckInterval = (run_now = false) => {
   if (run_now) checkForUpdates();
 }
 
-startUpdateCheckInterval(true);
+setTimeout(() => {
+  startUpdateCheckInterval(true);
+}, 1e4)

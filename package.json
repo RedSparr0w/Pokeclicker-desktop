@@ -21,6 +21,11 @@
     "electron-builder": "^22.8.0"
   },
   "build": {
-    "asar": false
+    "productName": "PokéClicker",
+    "asar": false,
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
