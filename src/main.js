@@ -23,10 +23,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
     icon: __dirname + '/icon.ico',
+    minWidth: 300,
+    minHeight: 200,
     webPreferences: {
       webSecurity: false,
-      minWidth: 300,
-      minHeight: 200,
     },
   });
   mainWindow.setMenuBarVisibility(false);
