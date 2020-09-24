@@ -29,8 +29,9 @@ function createWindow() {
       webSecurity: false,
     },
   });
+
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`)
+  mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
