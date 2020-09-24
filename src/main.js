@@ -14,9 +14,8 @@ let checkForUpdatesInterval;
 let newVersion = '0.0.0';
 let currentVersion = '0.0.0';
 try {
-  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/data/package.json`).toString()).version;
+  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
 } catch (e) {}
-currentVersion = '0.0.0';
 
 let mainWindow;
 
@@ -31,7 +30,7 @@ function createWindow() {
     },
   });
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL(`file://${__dirname}/data/index.html`)
+  mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`)
 
   mainWindow.on('closed', () => {
     mainWindow = null;
