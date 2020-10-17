@@ -2,6 +2,7 @@
 
 /* eslint-disable no-console */
 
+const { autoUpdater } = require('electron-updater');
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -253,6 +254,7 @@ const startUpdateCheckInterval = (run_now = false) => {
 try {
   // If we can get our current version, start checking for updates once the game starts
   currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
+  if (currentVersion == '0.0.0') throw Error('Must re-download updated version');
   setTimeout(() => {
     startUpdateCheckInterval(true);
   }, 1e4)
@@ -261,3 +263,7 @@ try {
   downloadUpdate(true);
   console.log('downloading...');
 }
+
+try {
+  autoUpdater.checkForUpdatesAndNotify()
+} catch (e) {}
