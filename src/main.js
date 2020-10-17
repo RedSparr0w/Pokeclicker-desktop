@@ -14,6 +14,7 @@ const Zip = require('adm-zip');
 let checkForUpdatesInterval;
 let newVersion = '0.0.0';
 let currentVersion = '0.0.0';
+let windowClosed = false;
 
 let mainWindow;
 
@@ -31,6 +32,9 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
 
+  mainWindow.on('close', (event) => {
+    windowClosed = true
+  })
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -177,6 +181,9 @@ const downloadUpdate = async (initial = false) => {
 }
 
 const downloadUpdateFailed = () => {
+  // If client exe updating, return
+  if (windowClosed) return;
+
   const userResponse = dialog.showMessageBoxSync(mainWindow, {
     type: 'error',
     title: 'PokeClicker - Update failed!',
@@ -265,5 +272,21 @@ try {
 }
 
 try {
+  autoUpdater.on('update-downloaded', () => {
+    const userResponse = dialog.showMessageBoxSync(mainWindow, {
+      title: 'PokeClicker - Client Update Available!',
+      message: `There is a new client update available,\nWould you like to install it now?\n\n`,
+      icon: `${__dirname}/icon.ico`,
+      buttons: ['Restart App Now', 'Later'],
+      noLink: true,
+    });
+    
+    switch (userResponse) {
+      case 0:
+        windowClosed = true;
+        autoUpdater.quitAndInstall(true, true);
+        break;
+    }
+  });
   autoUpdater.checkForUpdatesAndNotify()
 } catch (e) {}
