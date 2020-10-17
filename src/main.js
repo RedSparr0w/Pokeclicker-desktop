@@ -2,6 +2,7 @@
 
 /* eslint-disable no-console */
 
+const { autoUpdater } = require('electron-updater');
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -72,16 +73,24 @@ async function setActivity() {
 
   try {
     caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
-    shiny = await mainWindow.webContents.executeJavaScript('App.game.party.shinyPokemon.length');
+  } catch (e) {
+    console.log('Something went wrong, could not gather caught Pokemon data');
+  }
+  try {
+    shiny = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.filter(p => p.shiny).length');
+  } catch (e) {
+    console.log('Something went wrong, could not gather shiny Pokemon data');
+  }
+  try {
     attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
   } catch (e) {
-    console.log('Something went wrong, could not gather data');
+    console.log('Something went wrong, could not gather attack data');
   }
 
   // You'll need to have snek_large and snek_small assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
-    details: `Shinies ${shiny}/${caught} ✨`,
+    details: `Shinies: ${shiny}/${caught} ✨`,
     state: `Total Attack: ${attack.toLocaleString('en-US')}`,
     // largeImageKey: 'image_name',
     // largeImageText: 'text when hovered',
@@ -230,7 +239,7 @@ const shouldUpdateNowCheck = () => {
       setTimeout(shouldUpdateNowCheck, 36e5)
       break;
     case 2:
-      console.log('Disabled, stop checking for updates');
+      console.log('Update check disabled, stop checking for updates');
       break;
   }
 }
@@ -243,8 +252,9 @@ const startUpdateCheckInterval = (run_now = false) => {
 
 
 try {
-  // If we can get out current version, start checking for updates once the game starts
+  // If we can get our current version, start checking for updates once the game starts
   currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
+  if (currentVersion == '0.0.0') throw Error('Must re-download updated version');
   setTimeout(() => {
     startUpdateCheckInterval(true);
   }, 1e4)
@@ -253,3 +263,7 @@ try {
   downloadUpdate(true);
   console.log('downloading...');
 }
+
+try {
+  autoUpdater.checkForUpdatesAndNotify()
+} catch (e) {}
