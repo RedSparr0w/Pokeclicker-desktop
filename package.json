@@ -30,6 +30,9 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "win": {
+      "requestedExecutionLevel": "highestAvailable"
     }
   }
 }
