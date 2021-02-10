@@ -92,7 +92,7 @@ async function setActivity() {
     console.log('Something went wrong, could not gather attack data');
   }
 
-  // You'll need to have snek_large and snek_small assets uploaded to
+  // You'll need to have image assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
     details: `Shinies: ${shiny}/${caught} ✨`,
