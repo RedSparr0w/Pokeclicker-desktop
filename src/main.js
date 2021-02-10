@@ -26,6 +26,7 @@ function createWindow() {
     minHeight: 200,
     webPreferences: {
       webSecurity: false,
+      backgroundThrottling: false,
     },
   });
 
