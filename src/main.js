@@ -30,6 +30,12 @@ function createWindow() {
     },
   });
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.executeJavaScript(
+      fs.readFileSync(`${__dirname}/discord.js`).toString()
+    );
+  });
+
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
 
@@ -72,31 +78,20 @@ async function setActivity() {
     return;
   }
 
-  let caught = 0;
-  let shiny = 0;
-  let attack = 0;
+  let line1 = '';
+  let line2 = '';
 
   try {
-    caught = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.length');
+    [line1, line2] = await mainWindow.webContents.executeJavaScript('getDiscordRP()');
   } catch (e) {
-    console.log('Something went wrong, could not gather caught Pokemon data');
-  }
-  try {
-    shiny = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.filter(p => p.shiny).length');
-  } catch (e) {
-    console.log('Something went wrong, could not gather shiny Pokemon data');
-  }
-  try {
-    attack = await mainWindow.webContents.executeJavaScript('App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0)');
-  } catch (e) {
-    console.log('Something went wrong, could not gather attack data');
+    console.log('Something went wrong, could not gather discord RP data');
   }
 
   // You'll need to have image assets uploaded to
   // https://discord.com/developers/applications/<application_id>/rich-presence/assets
   rpc.setActivity({
-    details: `Shinies: ${shiny}/${caught} ✨`,
-    state: `Total Attack: ${attack.toLocaleString('en-US')}`,
+    details: line1.length <= 1 ? '--' : line1.substr(0, 128), //`Shinies: ${shiny}/${caught} ✨`,
+    state: line2.length <= 1 ? '--' : line2.substr(0, 128), //`Total Attack: ${attack.toLocaleString('en-US')}`,
     // largeImageKey: 'image_name',
     // largeImageText: 'text when hovered',
     // smallImageKey: 'image_name',
