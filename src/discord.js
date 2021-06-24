@@ -35,7 +35,7 @@
     </tr>
   </tbody></table>
   <span>Options:<br/>
-    <code>{caught} | {caught_shiny} | {sparkle} | {attack} | {current_route} | {current_route_kills} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed}</code>
+    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed}</code>
   </span>`;
 
   tabContent.appendChild(discordTabEl);
@@ -46,10 +46,14 @@ const getDiscordRP = () => {
     try {
       output = input.replace(/{caught}/g, App.game.party.caughtPokemon.length || 0)
                     .replace(/{caught_shiny}/g, App.game.party.caughtPokemon.filter(p => p.shiny).length || 0)
+                    .replace(/{hatched}/g, App.game.statistics.totalPokemonHatched().toLocaleString('en-US') || 0)
+                    .replace(/{hatched_shiny}/g, App.game.statistics.totalShinyPokemonHatched().toLocaleString('en-US') || 0)
                     .replace(/{sparkle}/g, '✨')
                     .replace(/{attack}/g, App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0).toLocaleString('en-US') || 0)
-                    .replace(/{current_route}/g,  Routes.getName(player.route(), player.region) || 'Unknown Route')
-                    .replace(/{current_route_kills}/g, App.game.statistics.routeKills[player.region][player.route()]().toLocaleString('en-US') || 0)
+                    .replace(/{underground_levels_cleared}/g, App.game.statistics.undergroundLayersMined().toLocaleString('en-US'))
+                    .replace(/{underground_items_found}/g, App.game.statistics.undergroundItemsFound().toLocaleString('en-US'))
+                    .replace(/{(current_route|current_area)}/g,  player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area')
+                    .replace(/{(current_route_kills|current_area_stats)}/g, player.route() ? App.game.statistics.routeKills[player.region][player.route()]().toLocaleString('en-US') : player.town().dungeon ? App.game.statistics.dungeonsCleared[GameConstants.getDungeonIndex(player.town().name)]().toLocaleString('en-US') : player.town().gym ? App.game.statistics.gymsDefeated[GameConstants.getGymIndex(player.town().name)]().toLocaleString('en-US') : '?')
                     .replace(/{achievement_bonus}/g, AchievementHandler.achievementBonusPercent() || 0)
                     .replace(/{money}/g, App.game.wallet.currencies[GameConstants.Currency.money]().toLocaleString('en-US') || 0)
                     .replace(/{dungeon_tokens}/g, App.game.wallet.currencies[GameConstants.Currency.dungeonToken]().toLocaleString('en-US') || 0)
