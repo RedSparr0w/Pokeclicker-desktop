@@ -9,8 +9,8 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron ./",
-    "dist": "electron-builder",
-    "dist:32": "npm run dist -- --ia32 -c.artifactName=${productName}-32bit-setup-${version}.${ext}",
+    "dist:32": "electron-builder --ia32",
+    "dist:64": "electron-builder --ia64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
     "win": "electron-builder --windows portable",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
