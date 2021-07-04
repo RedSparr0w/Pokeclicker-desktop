@@ -44,9 +44,6 @@
       "category": "Game"
     },
     "deb": {},
-    "appId": "pokeclicker.desktop",
-    "mac": {
-      "category": "pokeclicker.desktop.app"
-    }
+    "appId": "pokeclicker.desktop"
   }
 }
