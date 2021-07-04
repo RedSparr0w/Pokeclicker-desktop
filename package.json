@@ -9,7 +9,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron ./",
-    "restore-src": "git restore --source=HEAD --staged --worktree -- src",
+    "restore-src": "git clean -x -f -- src",
     "dist:32": "npm run restore-src && electron-builder --ia32",
     "dist:64": "npm run restore-src && electron-builder --ia64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
     "win": "electron-builder --windows portable",
