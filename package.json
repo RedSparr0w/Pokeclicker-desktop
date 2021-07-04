@@ -9,9 +9,9 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron ./",
-    "build": "electron-builder --ia32 --x64",
-    "dist:32": "electron-builder --ia32",
-    "dist:64": "electron-builder --ia64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
+    "restore-src": "git restore --source=HEAD --staged --worktree -- src",
+    "dist:32": "npm run restore-src && electron-builder --ia32",
+    "dist:64": "npm run restore-src && electron-builder --ia64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
     "win": "electron-builder --windows portable",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -38,6 +38,15 @@
     },
     "win": {
       "requestedExecutionLevel": "highestAvailable"
+    },
+    "linux": {
+      "target": "deb",
+      "category": "Game"
+    },
+    "deb": {},
+    "appId": "pokeclicker.desktop",
+    "mac": {
+      "category": "pokeclicker.desktop.app"
     }
   }
 }
