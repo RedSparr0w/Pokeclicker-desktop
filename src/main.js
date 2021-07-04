@@ -21,7 +21,7 @@ let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
     titleBarStyle: 'hidden',
-    icon: __dirname + '/icon.ico',
+    icon: __dirname + '/icon.png',
     minWidth: 300,
     minHeight: 200,
     webPreferences: {
@@ -162,7 +162,7 @@ const downloadUpdate = async (initial = false) => {
       const userResponse = dialog.showMessageBoxSync(mainWindow, {
         title: 'PokeClicker - Update success!',
         message: `Successfully updated,\nwould you like to reload the page now?`,
-        icon: `${__dirname}/icon.ico`,
+        icon: `${__dirname}/icon.png`,
         buttons: ['Yes', 'No'],
         noLink: true,
       });
@@ -184,7 +184,7 @@ const downloadUpdateFailed = () => {
     type: 'error',
     title: 'PokeClicker - Update failed!',
     message: `Failed to download or extract the update,\nWould you like to retry?`,
-    icon: `${__dirname}/icon.ico`,
+    icon: `${__dirname}/icon.png`,
     buttons: ['Yes', 'No'],
     noLink: true,
   });
@@ -228,7 +228,7 @@ const shouldUpdateNowCheck = () => {
   const userResponse = dialog.showMessageBoxSync(mainWindow, {
     title: 'PokeClicker - Update available!',
     message: `There is a new update available (v${newVersion}),\nWould you like to download it now?\n\n`,
-    icon: `${__dirname}/icon.ico`,
+    icon: `${__dirname}/icon.png`,
     buttons: ['Update Now', 'Remind Me', 'No (disable check)'],
     noLink: true,
   });
@@ -272,7 +272,7 @@ try {
     const userResponse = dialog.showMessageBoxSync(mainWindow, {
       title: 'PokeClicker - Client Update Available!',
       message: `There is a new client update available,\nWould you like to install it now?\n\n`,
-      icon: `${__dirname}/icon.ico`,
+      icon: `${__dirname}/icon.png`,
       buttons: ['Restart App Now', 'Later'],
       noLink: true,
     });
