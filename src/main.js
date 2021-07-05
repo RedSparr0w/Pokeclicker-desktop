@@ -111,7 +111,6 @@ app.on('activate', () => {
 /*
 DISCORD STUFF
 */
-
     
 const isMainInstance = app.requestSingleInstanceLock()
     
