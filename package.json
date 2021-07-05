@@ -1,6 +1,6 @@
 {
   "name": "pokeclicker-desktop",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "PokeClicker Desktop",
   "repository": {
     "type": "git",
@@ -31,7 +31,6 @@
   },
   "build": {
     "productName": "PokéClicker",
-    "asar": false,
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
@@ -40,8 +39,8 @@
       "requestedExecutionLevel": "highestAvailable"
     },
     "linux": {
-      "target": "deb",
-      "category": "Game"
+      "category": "Game",
+      "icon": "icon_512x512.png"
     },
     "deb": {},
     "appId": "pokeclicker.desktop"

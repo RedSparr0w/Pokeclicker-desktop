@@ -10,6 +10,9 @@ const DiscordRPC = require('discord-rpc');
 const https = require('https');
 const fs = require('fs');
 const Zip = require('adm-zip');
+const electron = require('electron');
+
+const dataDir =  (electron.app || electron.remote.app).getPath('userData');
 
 let checkForUpdatesInterval;
 let newVersion = '0.0.0';
@@ -33,11 +36,17 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.executeJavaScript(
       fs.readFileSync(`${__dirname}/discord.js`).toString()
-    );
+    ).catch(e=>{});
   });
 
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
+
+  // Check if we've already downloaded the data, otherwise load our loading screen
+  if (fs.existsSync(`${dataDir}/pokeclicker-master/docs/index.html`)) {
+    mainWindow.loadURL(`file://${dataDir}/pokeclicker-master/docs/index.html`);
+  } else {
+    mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
+  }
 
   mainWindow.on('close', (event) => {
     windowClosed = true
@@ -119,7 +128,7 @@ const isNewerVersion = (version) => {
 }
 
 const downloadUpdate = async (initial = false) => {
-  const zipFilePath = `${__dirname}/update.zip`;
+  const zipFilePath = `${dataDir}/update.zip`;
   const file = fs.createWriteStream(zipFilePath);
   https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', async res => {
     let cur = 0;
@@ -142,7 +151,7 @@ const downloadUpdate = async (initial = false) => {
 
       const zip = new Zip(zipFilePath);
 
-      const extracted = zip.extractEntryTo('pokeclicker-master/docs/', `${__dirname}`, true, true);
+      const extracted = zip.extractEntryTo('pokeclicker-master/docs/', `${dataDir}`, true, true);
 
       fs.unlinkSync(zipFilePath);
 
@@ -155,7 +164,7 @@ const downloadUpdate = async (initial = false) => {
 
       // If this is the initial download, don't ask the user about refreshing the page
       if (initial) {
-        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
+        mainWindow.loadURL(`file://${dataDir}/pokeclicker-master/docs/index.html`);
         return;
       }
 
@@ -168,7 +177,7 @@ const downloadUpdate = async (initial = false) => {
       });
 
       if (userResponse == 0){
-        mainWindow.loadURL(`file://${__dirname}/pokeclicker-master/docs/index.html`);
+        mainWindow.loadURL(`file://${dataDir}/pokeclicker-master/docs/index.html`);
       }
     });
   }).on('error', (e) => {
@@ -256,7 +265,7 @@ const startUpdateCheckInterval = (run_now = false) => {
 
 try {
   // If we can get our current version, start checking for updates once the game starts
-  currentVersion = JSON.parse(fs.readFileSync(`${__dirname}/pokeclicker-master/docs/package.json`).toString()).version;
+  currentVersion = JSON.parse(fs.readFileSync(`${dataDir}/pokeclicker-master/docs/package.json`).toString()).version;
   if (currentVersion == '0.0.0') throw Error('Must re-download updated version');
   setTimeout(() => {
     startUpdateCheckInterval(true);
@@ -286,3 +295,5 @@ try {
   });
   autoUpdater.checkForUpdatesAndNotify()
 } catch (e) {}
+
+console.log(dataDir)
