@@ -14,7 +14,7 @@ const electron = require('electron');
 
 const dataDir =  (electron.app || electron.remote.app).getPath('userData');
 
-console.log('Data directory:', dataDir);
+console.info('Data directory:', dataDir);
 
 let checkForUpdatesInterval;
 let newVersion = '0.0.0';
@@ -147,14 +147,14 @@ if (!isMainInstance) {
     try {
       [line1, line2] = await mainWindow.webContents.executeJavaScript('getDiscordRP()');
     } catch (e) {
-      console.log('Something went wrong, could not gather discord RP data');
+      console.warn('Something went wrong, could not gather discord RP data');
     }
 
     // You'll need to have image assets uploaded to
     // https://discord.com/developers/applications/<application_id>/rich-presence/assets
     rpc.setActivity({
-      details: line1.length <= 1 ? '--' : line1.substr(0, 128), //`Shinies: ${shiny}/${caught} ✨`,
-      state: line2.length <= 1 ? '--' : line2.substr(0, 128), //`Total Attack: ${attack.toLocaleString('en-US')}`,
+      details: line1.length <= 1 ? '--' : line1.substr(0, 128),
+      state: line2.length <= 1 ? '--' : line2.substr(0, 128),
       // largeImageKey: 'image_name',
       // largeImageText: 'text when hovered',
       // smallImageKey: 'image_name',
@@ -305,7 +305,7 @@ if (!isMainInstance) {
         setTimeout(shouldUpdateNowCheck, 36e5)
         break;
       case 2:
-        console.log('Update check disabled, stop checking for updates');
+        console.info('Update check disabled, stop checking for updates');
         break;
     }
   }
