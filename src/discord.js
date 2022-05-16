@@ -35,7 +35,7 @@
     </tr>
   </tbody></table>
   <span>Options:<br/>
-    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed}</code>
+    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
   </span>`;
 
   tabContent.appendChild(discordTabEl);
@@ -49,7 +49,9 @@ const getDiscordRP = () => {
                     .replace(/{hatched}/g, App.game.statistics.totalPokemonHatched().toLocaleString('en-US') || 0)
                     .replace(/{hatched_shiny}/g, App.game.statistics.totalShinyPokemonHatched().toLocaleString('en-US') || 0)
                     .replace(/{sparkle}/g, '✨')
-                    .replace(/{attack}/g, App.game.party.caughtPokemon.reduce((sum, p) => sum + p.attack, 0).toLocaleString('en-US') || 0)
+                    .replace(/{attack}/g, App.game.party.calculatePokemonAttack(PokemonType.None, PokemonType.None, true).toLocaleString('en-US') || 0)
+                    .replace(/{regional_attack}/g, App.game.party.calculatePokemonAttack().toLocaleString('en-US') || 0)
+                    .replace(/{click}/g, App.game.party.calculateClickAttack().toLocaleString('en-US') || 0)
                     .replace(/{underground_levels_cleared}/g, App.game.statistics.undergroundLayersMined().toLocaleString('en-US'))
                     .replace(/{underground_items_found}/g, App.game.statistics.undergroundItemsFound().toLocaleString('en-US'))
                     .replace(/{(current_route|current_area)}/g,  player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area')
@@ -62,7 +64,10 @@ const getDiscordRP = () => {
                     .replace(/{quest_points}/g, App.game.wallet.currencies[GameConstants.Currency.questPoint]().toLocaleString('en-US') || 0)
                     .replace(/{battle_points}/g, App.game.wallet.currencies[GameConstants.Currency.battlePoint]().toLocaleString('en-US') || 0)
                     .replace(/{time_played}/g, GameConstants.formatSecondsToTime(App.game.statistics['secondsPlayed']()) || '0 Seconds')
-                    .replace(/{quests_completed}/g, App.game.statistics['questsCompleted']().toLocaleString('en-US') || '0');
+                    .replace(/{quests_completed}/g, App.game.statistics['questsCompleted']().toLocaleString('en-US') || '0')
+                    .replace(/{frontier_stages_cleared}/g, App.game.statistics['battleFrontierTotalStagesCompleted']().toLocaleString('en-US') || '0')
+                    .replace(/{frontier_highest_cleared}/g, App.game.statistics['battleFrontierHighestStageCompleted']().toLocaleString('en-US') || '0');
+
       return output;
     } catch {
       return '';
