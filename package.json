@@ -22,7 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "adm-zip": "^0.5.9",
-    "discord-rpc": "^4.0.1",
+    "discord-rich-presence": "^0.0.8",
     "electron-updater": "^4.6.5"
   },
   "devDependencies": {

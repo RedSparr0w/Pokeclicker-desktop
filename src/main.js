@@ -6,7 +6,6 @@ const { autoUpdater } = require('electron-updater');
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
-const DiscordRPC = require('discord-rpc');
 const https = require('https');
 const fs = require('fs');
 const Zip = require('adm-zip');
@@ -25,7 +24,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
+    //titleBarStyle: 'hidden',
     icon: __dirname + '/icon.png',
     minWidth: 300,
     minHeight: 200,
@@ -64,7 +63,7 @@ function createWindow() {
 
 function createSecondaryWindow() {
   let newWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
+    //titleBarStyle: 'hidden',
     icon: __dirname + '/icon.png',
     minWidth: 300,
     minHeight: 200,
@@ -127,17 +126,11 @@ if (!isMainInstance) {
     createSecondaryWindow();
   })
 
-  // Set this to your Client ID.
-  const clientId = '733927271726841887';
-
-  // Only needed if you want to use spectate, join, or ask to join
-  DiscordRPC.register(clientId);
-
-  const rpc = new DiscordRPC.Client({ transport: 'ipc' });
-  const startTimestamp = new Date();
+  const discordClient = require('discord-rich-presence')('733927271726841887');
+  const timeStarted = Date.now();
 
   async function setActivity() {
-    if (!rpc || !mainWindow) {
+    if (!discordClient || !mainWindow) {
       return;
     }
 
@@ -150,29 +143,19 @@ if (!isMainInstance) {
       console.warn('Something went wrong, could not gather discord RP data');
     }
 
-    // You'll need to have image assets uploaded to
-    // https://discord.com/developers/applications/<application_id>/rich-presence/assets
-    rpc.setActivity({
+    discordClient.updatePresence({
       details: line1.length <= 1 ? '--' : line1.substr(0, 128),
       state: line2.length <= 1 ? '--' : line2.substr(0, 128),
-      // largeImageKey: 'image_name',
-      // largeImageText: 'text when hovered',
-      // smallImageKey: 'image_name',
-      // smallImageText: 'text when hovered',
-      instance: false,
+      startTimestamp: timeStarted,
+      instance:true,
     });
   }
 
-  rpc.on('ready', () => {
+  setActivity()
+  // activity can only be set every 15 seconds
+  setInterval(() => {
     setActivity();
-
-    // activity can only be set every 15 seconds
-    setInterval(() => {
-      setActivity();
-    }, 15e3);
-  });
-
-  rpc.login({ clientId }).catch(console.error);
+  }, 15e3);
 
   /*
   UPDATE STUFF
