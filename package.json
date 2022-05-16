@@ -21,13 +21,13 @@
   },
   "license": "ISC",
   "dependencies": {
-    "adm-zip": "^0.5.5",
+    "adm-zip": "^0.5.9",
     "discord-rpc": "^4.0.1",
-    "electron-updater": "^4.3.9"
+    "electron-updater": "^4.6.5"
   },
   "devDependencies": {
-    "electron": "^13.1.5",
-    "electron-builder": "^22.11.7"
+    "electron": "^18.2.3",
+    "electron-builder": "^23.0.3"
   },
   "build": {
     "productName": "PokéClicker",
