@@ -6,6 +6,7 @@ const { autoUpdater } = require('electron-updater');
 const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
+const DiscordRPC = require('discord-rpc');
 const https = require('https');
 const fs = require('fs');
 const Zip = require('adm-zip');
@@ -126,11 +127,17 @@ if (!isMainInstance) {
     createSecondaryWindow();
   })
 
-  const discordClient = require('discord-rich-presence')('733927271726841887');
-  const timeStarted = Date.now();
+  // Set this to your Client ID.
+  const clientId = '733927271726841887';
+
+  // Only needed if you want to use spectate, join, or ask to join
+  DiscordRPC.register(clientId);
+
+  const rpc = new DiscordRPC.Client({ transport: 'ipc' });
+  const startTimestamp = new Date();
 
   async function setActivity() {
-    if (!discordClient || !mainWindow) {
+    if (!rpc || !mainWindow) {
       return;
     }
 
@@ -143,19 +150,26 @@ if (!isMainInstance) {
       console.warn('Something went wrong, could not gather discord RP data');
     }
 
-    discordClient.updatePresence({
+    // You'll need to have image assets uploaded to
+    // https://discord.com/developers/applications/<application_id>/rich-presence/assets
+    rpc.setActivity({
       details: line1.length <= 1 ? '--' : line1.substr(0, 128),
       state: line2.length <= 1 ? '--' : line2.substr(0, 128),
-      startTimestamp: timeStarted,
+      startTimestamp,
       instance:true,
     });
   }
 
-  setActivity()
-  // activity can only be set every 15 seconds
-  setInterval(() => {
+  rpc.on('ready', () => {
     setActivity();
-  }, 15e3);
+
+    // activity can only be set every 15 seconds
+    setInterval(() => {
+      setActivity();
+    }, 15e3);
+  });
+
+  rpc.login({ clientId }).catch(console.error);
 
   /*
   UPDATE STUFF
