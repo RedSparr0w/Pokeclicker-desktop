@@ -25,7 +25,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
+    //titleBarStyle: 'hidden',
     icon: __dirname + '/icon.png',
     minWidth: 300,
     minHeight: 200,
@@ -64,7 +64,7 @@ function createWindow() {
 
 function createSecondaryWindow() {
   let newWindow = new BrowserWindow({
-    titleBarStyle: 'hidden',
+    //titleBarStyle: 'hidden',
     icon: __dirname + '/icon.png',
     minWidth: 300,
     minHeight: 200,
@@ -155,11 +155,8 @@ if (!isMainInstance) {
     rpc.setActivity({
       details: line1.length <= 1 ? '--' : line1.substr(0, 128),
       state: line2.length <= 1 ? '--' : line2.substr(0, 128),
-      // largeImageKey: 'image_name',
-      // largeImageText: 'text when hovered',
-      // smallImageKey: 'image_name',
-      // smallImageText: 'text when hovered',
-      instance: false,
+      startTimestamp,
+      instance:true,
     });
   }
 
