@@ -63,7 +63,7 @@ const getDiscordRP = () => {
                     .replace(/{farm_points}/g, App.game.wallet.currencies[GameConstants.Currency.farmPoint]().toLocaleString('en-US') || 0)
                     .replace(/{quest_points}/g, App.game.wallet.currencies[GameConstants.Currency.questPoint]().toLocaleString('en-US') || 0)
                     .replace(/{battle_points}/g, App.game.wallet.currencies[GameConstants.Currency.battlePoint]().toLocaleString('en-US') || 0)
-                    .replace(/{time_played}/g, GameConstants.formatSecondsToTime(App.game.statistics['secondsPlayed']()) || '0 Seconds')
+                    .replace(/{time_played}/g, GameConstants.formatSecondsToTime(App.game.statistics['secondsPlayed']()).replace(/<\/br>/g, ' ') || '0 Seconds')
                     .replace(/{quests_completed}/g, App.game.statistics['questsCompleted']().toLocaleString('en-US') || '0')
                     .replace(/{frontier_stages_cleared}/g, App.game.statistics['battleFrontierTotalStagesCompleted']().toLocaleString('en-US') || '0')
                     .replace(/{frontier_highest_cleared}/g, App.game.statistics['battleFrontierHighestStageCompleted']().toLocaleString('en-US') || '0');
