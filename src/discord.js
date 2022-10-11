@@ -35,7 +35,7 @@
     </tr>
   </tbody></table>
   <span>Options:<br/>
-    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
+    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
   </span>`;
 
   tabContent.appendChild(discordTabEl);
@@ -54,6 +54,8 @@ const getDiscordRP = () => {
                     .replace(/{click}/g, App.game.party.calculateClickAttack().toLocaleString('en-US') || 0)
                     .replace(/{underground_levels_cleared}/g, App.game.statistics.undergroundLayersMined().toLocaleString('en-US'))
                     .replace(/{underground_items_found}/g, App.game.statistics.undergroundItemsFound().toLocaleString('en-US'))
+                    .replace(/{current_region}/g,  GameConstants.camelCaseToString(GameConstants.Region[player.region] ??  'Unknown Region'))
+                    .replace(/{current_subregion}/g,  SubRegions.getSubRegionById(player.region, player.subregion)?.name ??  'Unknown Subregion')
                     .replace(/{(current_route|current_area)}/g,  player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area')
                     .replace(/{(current_route_kills|current_area_stats)}/g, player.route() ? App.game.statistics.routeKills[player.region][player.route()]().toLocaleString('en-US') : player.town().dungeon ? App.game.statistics.dungeonsCleared[GameConstants.getDungeonIndex(player.town().name)]().toLocaleString('en-US') : player.town().gym ? App.game.statistics.gymsDefeated[GameConstants.getGymIndex(player.town().name)]().toLocaleString('en-US') : '?')
                     .replace(/{achievement_bonus}/g, AchievementHandler.achievementBonusPercent() || 0)
