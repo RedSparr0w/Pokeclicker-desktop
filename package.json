@@ -23,11 +23,11 @@
   "dependencies": {
     "adm-zip": "^0.5.9",
     "discord-rpc": "^4.0.1",
-    "electron-updater": "^5.2.1"
+    "electron-updater": "^5.3.0"
   },
   "devDependencies": {
-    "electron": "^20.2.0",
-    "electron-builder": "^23.3.3"
+    "electron": "^21.1.0",
+    "electron-builder": "^23.6.0"
   },
   "build": {
     "productName": "PokéClicker",
