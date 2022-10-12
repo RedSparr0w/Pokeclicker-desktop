@@ -1,12 +1,18 @@
-(() => {
+// Our Discord rp stuff
+let startTimestamp = Date.now();
+let currentArea = '';
 
+(() => {
   Settings.add(new Setting('discord-rp-1', 'discord-rp-1', [], 'Shinies: {caught_shiny}/{caught} {sparkle}'));
   Settings.add(new Setting('discord-rp-2', 'discord-rp-2', [], 'Total Attack: {attack}'));
+  Settings.add(new BooleanSetting(`discord-rp.timer`, 'Show current session play time (max 24 hours)', false));
+  Settings.add(new BooleanSetting(`discord-rp.timer-reset`, 'Reset timer on area change', false));
 
   const settingsModal = document.getElementById('settingsModal');
   const tabs = settingsModal.getElementsByClassName('nav-tabs')[0];
   const tabContent = settingsModal.getElementsByClassName('tab-content')[0];
 
+  // Add the Discord tab
   const discordTab = document.createElement('li');
   discordTab.className = 'nav-item';
   const discordTabInner = document.createElement('a');
@@ -17,6 +23,7 @@
   discordTab.appendChild(discordTabInner);
   tabs.appendChild(discordTab);
 
+  // Add the Discord tab contents
   const discordTabEl = document.createElement('div');
   discordTabEl.className = 'tab-pane';
   discordTabEl.id = 'settings-discord';
@@ -33,6 +40,28 @@
           <input class="form-control" onchange="Settings.setSettingByName(this.name, this.value)" id="discord-rp-2" name="discord-rp-2" data-bind="value: Settings.getSetting('discord-rp-2').observableValue() || ''" value="Total Attack: {attack}">
       </td>
     </tr>
+    <tr>
+      <td colspan="2">
+        <span>Show current session play time (max 24 hours)</span>
+        <label class="form-check-label toggler-wrapper style-1 float-right">
+          <input class="clickable" type="checkbox" data-bind="checked: Settings.getSetting('discord-rp.timer').observableValue()" onchange="Settings.setSettingByName(this.name, this.checked)" name="discord-rp.timer">
+          <div class="toggler-slider">
+            <div class="toggler-knob"></div>
+          </div>
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span>Reset timer on area change</span>
+        <label class="form-check-label toggler-wrapper style-1 float-right">
+          <input class="clickable" type="checkbox" data-bind="checked: Settings.getSetting('discord-rp.timer-reset').observableValue()" onchange="Settings.setSettingByName(this.name, this.checked)" name="discord-rp.timer-reset">
+          <div class="toggler-slider">
+            <div class="toggler-knob"></div>
+          </div>
+        </label>
+      </td>
+    </tr>
   </tbody></table>
   <span>Options:<br/>
     <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
@@ -42,6 +71,7 @@
 })();
 
 const getDiscordRP = () => {
+  const _currentArea = player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area';
   const replaceDiscordText = (input) => {
     try {
       output = input.replace(/{caught}/g, App.game.party.caughtPokemon.length || 0)
@@ -77,9 +107,18 @@ const getDiscordRP = () => {
       return '';
     }
   }
+  const discordRPCValues = {
+    line1: replaceDiscordText(document.getElementById('discord-rp-1').value || ''),
+    line2: replaceDiscordText(document.getElementById('discord-rp-2').value || ''),
+  }
 
-  let line1 = replaceDiscordText(document.getElementById('discord-rp-1').value || '');
-  let line2 = replaceDiscordText(document.getElementById('discord-rp-2').value || '');
+  // Reset timer if area has changed
+  if (Settings.getSetting('discord-rp.timer-reset').observableValue() && currentArea != _currentArea) {
+    startTimestamp = Date.now();
+  }
+  currentArea = _currentArea;
+  // Set our "start" timestamp
+  if (Settings.getSetting('discord-rp.timer').observableValue()) discordRPCValues.startTimestamp = startTimestamp;
 
-  return [line1, line2];
+  return discordRPCValues;
 }

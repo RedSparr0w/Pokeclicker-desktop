@@ -138,22 +138,28 @@ if (!isMainInstance) {
       return;
     }
 
-    let line1 = '';
-    let line2 = '';
+    let discordData = {};
 
     try {
-      [line1, line2] = await mainWindow.webContents.executeJavaScript('getDiscordRP()');
+      discordData = await mainWindow.webContents.executeJavaScript('getDiscordRP()');
     } catch (e) {
       console.warn('Something went wrong, could not gather discord RP data');
     }
 
     // You'll need to have image assets uploaded to
     // https://discord.com/developers/applications/<application_id>/rich-presence/assets
-    rpc.setActivity({
-      details: line1.length <= 1 ? '--' : line1.substr(0, 128),
-      state: line2.length <= 1 ? '--' : line2.substr(0, 128),
-      instance:true,
-    });
+    const activity = {
+      instance: true,
+    };
+    activity.details = discordData.line1?.length <= 1 ? '--' : discordData.line1.substr(0, 128);
+    activity.state = discordData.line2?.length <= 1 ? '--' : discordData.line2.substr(0, 128);
+    if (discordData.startTimestamp) activity.startTimestamp = discordData.startTimestamp;
+    if (discordData.largeImageKey) activity.largeImageKey = discordData.largeImageKey;
+    if (discordData.largeImageKey && discordData.largeImageText) activity.largeImageText = discordData.largeImageText.substr(0, 128);
+    if (discordData.smallImageKey) activity.smallImageKey = discordData.smallImageKey;
+    if (discordData.smallImageKey && discordData.smallImageText) activity.smallImageText = discordData.smallImageText.substr(0, 128);
+
+    rpc.setActivity(activity);
   }
 
   rpc.on('ready', () => {
