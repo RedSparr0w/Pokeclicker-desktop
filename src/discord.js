@@ -1,12 +1,40 @@
-// Our Discord rp stuff
-let startTimestamp = Date.now();
-let currentArea = '';
-
 (() => {
   Settings.add(new Setting('discord-rp-1', 'discord-rp-1', [], 'Shinies: {caught_shiny}/{caught} {sparkle}'));
   Settings.add(new Setting('discord-rp-2', 'discord-rp-2', [], 'Total Attack: {attack}'));
   Settings.add(new BooleanSetting(`discord-rp.timer`, 'Show current session play time (max 24 hours)', false));
   Settings.add(new BooleanSetting(`discord-rp.timer-reset`, 'Reset timer on area change', false));
+  Settings.add(new Setting('discord-rp.large-image', 'Discord main image',
+      [
+          new SettingOption('None', ''),
+          new SettingOption('PokéClicker Logo', 'pokeclickerlogo'),
+          new SettingOption('Current Area Environment', 'current-environment'),
+          new SettingOption('Cave Environment', 'background-cave'),
+          new SettingOption('Cave Gem Environment', 'background-cave-gem'),
+          new SettingOption('Fire Environment', 'background-fire'),
+          new SettingOption('Forest Environment', 'background-forest'),
+          new SettingOption('Grass Environment', 'background-grass'),
+          new SettingOption('Graveyard Environment', 'background-graveyard'),
+          new SettingOption('Ice Environment', 'background-ice'),
+          new SettingOption('Mansion Environment', 'background-mansion'),
+          new SettingOption('Power Plant Environment', 'background-power-plant'),
+          new SettingOption('Water Environment', 'background-water'),
+      ],
+      'pokeclickerlogo'));
+  Settings.add(new Setting('discord-rp.small-image', 'Discord small image',
+      [
+          new SettingOption('None', ''),
+          new SettingOption('Money', 'money'),
+          new SettingOption('Dungeon Tokens', 'dungeonToken'),
+          new SettingOption('Quest Points', 'questPoint'),
+          new SettingOption('Farm Points', 'farmPoint'),
+          new SettingOption('Diamonds', 'diamond'),
+          new SettingOption('Battle Points', 'battlePoint'),
+          new SettingOption('Trainer', 'trainer'),
+          new SettingOption('Egg', 'egg'),
+          new SettingOption('Poké Ball', 'pokeball'),
+          new SettingOption('Cycle All', 'cycle'),
+      ],
+      'cycle'));
 
   const settingsModal = document.getElementById('settingsModal');
   const tabs = settingsModal.getElementsByClassName('nav-tabs')[0];
@@ -62,6 +90,8 @@ let currentArea = '';
         </label>
       </td>
     </tr>
+    <tr data-bind="template: { name: 'MultipleChoiceSettingTemplate', data: Settings.getSetting('discord-rp.large-image')}"></tr>
+    <tr data-bind="template: { name: 'MultipleChoiceSettingTemplate', data: Settings.getSetting('discord-rp.small-image')}"></tr>
   </tbody></table>
   <span>Options:<br/>
     <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
@@ -69,6 +99,11 @@ let currentArea = '';
 
   tabContent.appendChild(discordTabEl);
 })();
+
+// Our Discord rp stuff
+let startTimestamp = Date.now();
+let currentArea = '';
+let cycleSmallImageIndex = 0;
 
 const getDiscordRP = () => {
   const _currentArea = player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area';
@@ -119,6 +154,50 @@ const getDiscordRP = () => {
   currentArea = _currentArea;
   // Set our "start" timestamp
   if (Settings.getSetting('discord-rp.timer').observableValue()) discordRPCValues.startTimestamp = startTimestamp;
+
+  // Our Discord images
+  switch (Settings.getSetting('discord-rp.large-image').observableValue()) {
+    case 'current-environment':
+      discordRPCValues.largeImageKey = `background-${MapHelper.calculateBattleCssClass() ?? 'grass'}`;
+      break;
+    default:
+      discordRPCValues.largeImageKey = Settings.getSetting('discord-rp.large-image').observableValue();
+  }
+  discordRPCValues.largeImageText = currentArea;
+
+  const cycleOptions = [
+    'money',
+    'dungeonToken',
+    'questPoint',
+    'farmPoint',
+    'diamond',
+    'battlePoint',
+    'trainer',
+    'egg',
+    'pokeball',
+  ];
+
+  let smallImage = Settings.getSetting('discord-rp.small-image').observableValue();
+  if (smallImage === 'cycle') {
+    smallImage = cycleOptions[++cycleSmallIndex % cycleOptions.length];
+  }
+  switch (smallImage) {
+    case 'trainer':
+      discordRPCValues.smallImageKey = `trainer-${App.game.profile.trainer()}`;
+      discordRPCValues.smallImageText = `Total Attack: ${App.game.party.calculatePokemonAttack(PokemonType.None, PokemonType.None, true, undefined, true, false, WeatherType.Clear, true, true).toLocaleString('en-US') || 0}`;
+      break;
+    case 'egg':
+      discordRPCValues.smallImageKey = smallImage;
+      discordRPCValues.smallImageText = `Total Hatched: ${App.game.statistics.totalPokemonHatched().toLocaleString('en-US') || 0}`;
+      break;
+    case 'pokeball':
+      discordRPCValues.smallImageKey = smallImage;
+      discordRPCValues.smallImageText = `Shinies: ${App.game.party.caughtPokemon.filter(p => p.shiny).length || 0}/${App.game.party.caughtPokemon.length || 0} ✨`;
+      break;
+    default:
+      discordRPCValues.smallImageKey = smallImage.toLowerCase();
+      discordRPCValues.smallImageText = `${GameConstants.camelCaseToString(smallImage)}: ${App.game.wallet.currencies[GameConstants.Currency[smallImage]]?.().toLocaleString('en-US') ?? '0'}`;
+  }
 
   return discordRPCValues;
 }
