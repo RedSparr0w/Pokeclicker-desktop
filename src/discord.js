@@ -179,7 +179,7 @@ const getDiscordRP = () => {
 
   let smallImage = Settings.getSetting('discord-rp.small-image').observableValue();
   if (smallImage === 'cycle') {
-    smallImage = cycleOptions[++cycleSmallIndex % cycleOptions.length];
+    smallImage = cycleOptions[++cycleSmallImageIndex % cycleOptions.length];
   }
   switch (smallImage) {
     case 'trainer':
