@@ -69,18 +69,6 @@
       </td>
     </tr>
     <tr>
-      <td>Line 1:</td>
-      <td>
-          <input class="form-control" onchange="Settings.setSettingByName(this.name, this.value)" id="discord-rp-1" name="discord-rp-1" data-bind="value: Settings.getSetting('discord-rp-1').observableValue() || ''" value="Shinies: {caught_shiny}/{caught} {sparkle}">
-      </td>
-    </tr>
-    <tr>
-      <td>Line 2:</td>
-      <td>
-          <input class="form-control" onchange="Settings.setSettingByName(this.name, this.value)" id="discord-rp-2" name="discord-rp-2" data-bind="value: Settings.getSetting('discord-rp-2').observableValue() || ''" value="Total Attack: {attack}">
-      </td>
-    </tr>
-    <tr>
       <td colspan="2">
         <span>Show current session play time (max 24 hours)</span>
         <label class="form-check-label toggler-wrapper style-1 float-right">
@@ -104,9 +92,21 @@
     </tr>
     <tr data-bind="template: { name: 'MultipleChoiceSettingTemplate', data: Settings.getSetting('discord-rp.large-image')}"></tr>
     <tr data-bind="template: { name: 'MultipleChoiceSettingTemplate', data: Settings.getSetting('discord-rp.small-image')}"></tr>
+    <tr>
+      <td class="p-2">Line 1 text:</td>
+      <td class="p-0">
+          <input class="form-control" onblur="window.discordRPFocus = this" onchange="Settings.setSettingByName(this.name, this.value)" id="discord-rp-1" name="discord-rp-1" data-bind="value: Settings.getSetting('discord-rp-1').observableValue() || ''" value="Shinies: {caught_shiny}/{caught} {sparkle}">
+      </td>
+    </tr>
+    <tr>
+      <td class="p-2">Line 2 text:</td>
+      <td class="p-0">
+          <input class="form-control" onblur="window.discordRPFocus = this" onchange="Settings.setSettingByName(this.name, this.value)" id="discord-rp-2" name="discord-rp-2" data-bind="value: Settings.getSetting('discord-rp-2').observableValue() || ''" value="Total Attack: {attack}">
+      </td>
+    </tr>
   </tbody></table>
   <span>Options:<br/>
-    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared} | {total_manual_harvests} | {total_berries_obtained} | {total_berries_harvested} | {total_berries_replanted} | {total_berries_mutated} | {total_mulches_used} | {total_shovels_used} | {berry_daily_deal_trades} | {total_mulches_used}</code>
+    <code>${'{caught} {caught_shiny} {hatched} {hatched_shiny} {sparkle} {attack} {regional_attack} {click} {click_attack} {clicks} {current_region} {current_subregion} {current_area} {current_area_stats} {underground_levels_cleared} {underground_items_found} {underground_deal_trades} {achievement_bonus} {money} {dungeon_tokens} {diamonds} {farm_points} {quest_points} {battle_points} {time_played} {quests_completed} {frontier_stages_cleared} {frontier_highest_cleared} {total_manual_harvests} {total_berries_obtained} {total_berries_harvested} {total_berries_replanted} {total_berries_mutated} {total_mulches_used} {total_shovels_used} {berry_daily_deal_trades} {total_mulches_used} {pokerus} {pokerus_resistant}'.replace(/}/g, '}</a>').replace(/{(\w+)/g, `<a href="#" onclick="window.discordRPFocus.value += ' {$1}'">{$1`)}</code>
   </span>`;
 
   tabContent.appendChild(discordTabEl);
@@ -128,9 +128,11 @@ const getDiscordRP = () => {
                     .replace(/{sparkle}/g, '✨')
                     .replace(/{attack}/g, App.game.party.calculatePokemonAttack(PokemonType.None, PokemonType.None, true).toLocaleString('en-US') || 0)
                     .replace(/{regional_attack}/g, App.game.party.calculatePokemonAttack().toLocaleString('en-US') || 0)
-                    .replace(/{click}/g, App.game.party.calculateClickAttack().toLocaleString('en-US') || 0)
+                    .replace(/{(click|click_attack)}/g, App.game.party.calculateClickAttack().toLocaleString('en-US') || 0)
+                    .replace(/{clicks}/g, App.game.statistics.clickAttacks().toLocaleString('en-US') || 0)
                     .replace(/{underground_levels_cleared}/g, App.game.statistics.undergroundLayersMined().toLocaleString('en-US'))
                     .replace(/{underground_items_found}/g, App.game.statistics.undergroundItemsFound().toLocaleString('en-US'))
+                    .replace(/{underground_deal_trades}/g, App.game.statistics.undergroundDailyDealTrades().toLocaleString('en-US'))
                     .replace(/{current_region}/g,  GameConstants.camelCaseToString(GameConstants.Region[player.region] ??  'Unknown Region'))
                     .replace(/{current_subregion}/g,  SubRegions.getSubRegionById(player.region, player.subregion)?.name ??  'Unknown Subregion')
                     .replace(/{(current_route|current_area)}/g,  player.route() ? Routes.getName(player.route(), player.region) : player.town() ? player.town().name : 'Unknown Area')
@@ -155,6 +157,8 @@ const getDiscordRP = () => {
                     .replace(/{total_shovels_used}/g, App.game.statistics['totalShovelsUsed']().toLocaleString('en-US') || '0')
                     .replace(/{berry_daily_deal_trades}/g, App.game.statistics['berryDailyDealTrades']().toLocaleString('en-US') || '0')
                     .replace(/{total_mulches_used}/g, App.game.statistics['totalMulchesUsed']().toLocaleString('en-US') || '0')
+                    .replace(/{pokerus}/g, App.game.party.caughtPokemon.filter(p => p.pokerus).length.toLocaleString('en-US') || '0')
+                    .replace(/{pokerus_resistant}/g, App.game.party.caughtPokemon.filter(p => p.pokerus >= 3).length.toLocaleString('en-US') || '0')
                     // Replace html line breaks with a space
                     .replace(/<\/?br>/g, ' ');
 
