@@ -94,7 +94,7 @@
     <tr data-bind="template: { name: 'MultipleChoiceSettingTemplate', data: Settings.getSetting('discord-rp.small-image')}"></tr>
   </tbody></table>
   <span>Options:<br/>
-    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared}</code>
+    <code>{caught} | {caught_shiny} | {hatched} | {hatched_shiny} | {sparkle} | {attack} | {regional_attack} | {click} | {current_region} | {current_subregion} | {current_area} | {current_area_stats} | {underground_levels_cleared} | {underground_items_found} | {achievement_bonus} | {money} | {dungeon_tokens} | {diamonds} | {farm_points} | {quest_points} | {battle_points} | {time_played} | {quests_completed} | {frontier_stages_cleared} | {frontier_highest_cleared} | {total_manual_harvests} | {total_berries_obtained} | {total_berries_harvested} | {total_berries_replanted} | {total_berries_mutated} | {total_mulches_used} | {total_shovels_used} | {berry_daily_deal_trades} | {total_mulches_used}</code>
   </span>`;
 
   tabContent.appendChild(discordTabEl);
@@ -134,6 +134,15 @@ const getDiscordRP = () => {
                     .replace(/{quests_completed}/g, App.game.statistics['questsCompleted']().toLocaleString('en-US') || '0')
                     .replace(/{frontier_stages_cleared}/g, App.game.statistics['battleFrontierTotalStagesCompleted']().toLocaleString('en-US') || '0')
                     .replace(/{frontier_highest_cleared}/g, App.game.statistics['battleFrontierHighestStageCompleted']().toLocaleString('en-US') || '0')
+                    .replace(/{total_manual_harvests}/g, App.game.statistics['totalManualHarvests']().toLocaleString('en-US') || '0')
+                    .replace(/{total_berries_obtained}/g, App.game.statistics['totalBerriesObtained']().toLocaleString('en-US') || '0')
+                    .replace(/{total_berries_harvested}/g, App.game.statistics['totalBerriesHarvested']().toLocaleString('en-US') || '0')
+                    .replace(/{total_berries_replanted}/g, App.game.statistics['totalBerriesReplanted']().toLocaleString('en-US') || '0')
+                    .replace(/{total_berries_mutated}/g, App.game.statistics['totalBerriesMutated']().toLocaleString('en-US') || '0')
+                    .replace(/{total_mulches_used}/g, App.game.statistics['totalMulchesUsed']().toLocaleString('en-US') || '0')
+                    .replace(/{total_shovels_used}/g, App.game.statistics['totalShovelsUsed']().toLocaleString('en-US') || '0')
+                    .replace(/{berry_daily_deal_trades}/g, App.game.statistics['berryDailyDealTrades']().toLocaleString('en-US') || '0')
+                    .replace(/{total_mulches_used}/g, App.game.statistics['totalMulchesUsed']().toLocaleString('en-US') || '0')
                     // Replace html line breaks with a space
                     .replace(/<\/?br>/g, ' ');
 
