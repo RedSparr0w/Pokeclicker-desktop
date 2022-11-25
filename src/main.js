@@ -146,6 +146,10 @@ if (!isMainInstance) {
       console.warn('Something went wrong, could not gather discord RP data');
     }
 
+    if (!discordData.enabled) {
+      return rpc.clearActivity();
+    }
+
     // You'll need to have image assets uploaded to
     // https://discord.com/developers/applications/<application_id>/rich-presence/assets
     const activity = {

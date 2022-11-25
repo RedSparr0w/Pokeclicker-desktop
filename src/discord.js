@@ -1,4 +1,5 @@
 (() => {
+  Settings.add(new BooleanSetting('discord-rp.enabled', 'Discord RP enabled', true))
   Settings.add(new Setting('discord-rp-1', 'discord-rp-1', [], 'Shinies: {caught_shiny}/{caught} {sparkle}'));
   Settings.add(new Setting('discord-rp-2', 'discord-rp-2', [], 'Total Attack: {attack}'));
   Settings.add(new BooleanSetting(`discord-rp.timer`, 'Show current session play time (max 24 hours)', false));
@@ -56,6 +57,17 @@
   discordTabEl.className = 'tab-pane';
   discordTabEl.id = 'settings-discord';
   discordTabEl.innerHTML = `<table class="table table-striped table-hover m-0"><tbody>
+    <tr>
+      <td colspan="2">
+        <span>Enable Discord rich presence</span>
+        <label class="form-check-label toggler-wrapper style-1 float-right">
+          <input class="clickable" type="checkbox" data-bind="checked: Settings.getSetting('discord-rp.enabled').observableValue()" onchange="Settings.setSettingByName(this.name, this.checked)" name="discord-rp.enabled">
+          <div class="toggler-slider">
+            <div class="toggler-knob"></div>
+          </div>
+        </label>
+      </td>
+    </tr>
     <tr>
       <td>Line 1:</td>
       <td>
@@ -152,6 +164,7 @@ const getDiscordRP = () => {
     }
   }
   const discordRPCValues = {
+    enabled: Settings.getSetting('discord-rp.enabled').observableValue(),
     line1: replaceDiscordText(document.getElementById('discord-rp-1').value || ''),
     line2: replaceDiscordText(document.getElementById('discord-rp-2').value || ''),
   }
