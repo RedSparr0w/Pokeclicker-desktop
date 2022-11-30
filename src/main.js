@@ -4,13 +4,12 @@
 
 const { autoUpdater } = require('electron-updater');
 const { app, BrowserWindow, dialog } = require('electron');
-const path = require('path');
-const url = require('url');
 const DiscordRPC = require('discord-rpc');
 const https = require('https');
 const fs = require('fs');
 const Zip = require('adm-zip');
 const electron = require('electron');
+const clientVersion = app.getVersion();
 
 const dataDir =  (electron.app || electron.remote.app).getPath('userData');
 
@@ -36,7 +35,7 @@ function createWindow() {
 
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.executeJavaScript(
-      fs.readFileSync(`${__dirname}/discord.js`).toString()
+      `(() => { DiscordRichPresence.clientVersion = '${clientVersion}' })()`
     ).catch(e=>{});
   });
 
@@ -141,7 +140,7 @@ if (!isMainInstance) {
     let discordData = {};
 
     try {
-      discordData = await mainWindow.webContents.executeJavaScript('getDiscordRP()');
+      discordData = await mainWindow.webContents.executeJavaScript('DiscordRichPresence.getRichPresenceData()');
     } catch (e) {
       console.warn('Something went wrong, could not gather discord RP data');
     }
