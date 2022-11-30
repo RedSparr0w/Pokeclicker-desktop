@@ -23,6 +23,11 @@ let windowClosed = false;
 let mainWindow;
 
 function createWindow() {
+  // Set the Application for Desktop notifications (windows only)
+  try {
+    app.setAppUserModelId('PokéClicker');
+  } catch (e) {}
+
   mainWindow = new BrowserWindow({
     icon: __dirname + '/icon.png',
     minWidth: 300,
