@@ -194,13 +194,14 @@ if (!isMainInstance) {
     https.get('https://codeload.github.com/pokeclicker/pokeclicker/zip/master', async res => {
       let cur = 0;
       try {
-        if (!initial) await mainWindow.webContents.executeJavaScript(`Notifier.notify({ title: '[UPDATER] v${newVersion}', message: 'Downloading Files...<br/>Please Wait...', timeout: 1e6 })`);
+        if (!initial) await mainWindow.webContents.executeJavaScript(`Notifier.notify({ title: '[UPDATER] v${newVersion}', message: 'Downloading Files...<br/><span id="update-message-progress">Please Wait...</span>', timeout: 1e6 })`);
       }catch(e){}
 
       res.on('data', async chunk => {
           cur += chunk.length;
           try {
             if (initial) await mainWindow.webContents.executeJavaScript(`setStatus("Downloading Files...<br/>${(cur / 1048576).toFixed(2)} mb")`);
+            else await mainWindow.webContents.executeJavaScript(`document.getElementById('update-message-progress').innerText = "${(cur / 1048576).toFixed(2)} mb"`);
           }catch(e){}
       });
 
