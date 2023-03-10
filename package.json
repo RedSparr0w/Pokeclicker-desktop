@@ -10,7 +10,7 @@
   "scripts": {
     "start": "electron ./",
     "dist:32": "electron-builder --ia32",
-    "dist:64": "electron-builder --x64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
+    "dist:64": "electron-builder --x64",
     "win": "electron-builder --windows portable",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,6 +30,7 @@
   },
   "build": {
     "productName": "PokéClicker",
+    "artifactName": "${productName}-${arch}-setup-${version}.${ext}",
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
@@ -40,9 +41,8 @@
     "linux": {
       "category": "Game",
       "icon": "icon_512x512.png",
-      "target": "deb"
+      "target": ["deb", "AppImage"]
     },
-    "deb": {},
     "appId": "pokeclicker.desktop"
   }
 }
