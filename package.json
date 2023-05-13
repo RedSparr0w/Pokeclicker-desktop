@@ -12,6 +12,7 @@
     "dist:32": "electron-builder --ia32",
     "dist:64": "electron-builder --x64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
     "win": "electron-builder --windows portable",
+    "mac": "electron-builder --mac",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
@@ -41,6 +42,10 @@
       "category": "Game",
       "icon": "icon_512x512.png",
       "target": "deb"
+    },
+    "mac": {
+        "target": "zip",
+        "icon": "icon_512x512.png"
     },
     "deb": {},
     "appId": "pokeclicker.desktop"
