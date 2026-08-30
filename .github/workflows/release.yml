@@ -1,0 +1,85 @@
+name: Release desktop client
+
+on:
+  push:
+    tags:
+      - desktop-v*
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: Mark the draft as a prerelease
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            platform: ubuntu-22.04
+            target: ""
+            args: --bundles deb,rpm,appimage --config src-tauri/tauri.release.conf.json
+          - name: Windows x64
+            platform: windows-latest
+            target: ""
+            args: --bundles nsis --config src-tauri/tauri.release.conf.json
+          - name: macOS Apple Silicon
+            platform: macos-latest
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin --bundles app,dmg --config src-tauri/tauri.release.conf.json
+          - name: macOS Intel
+            platform: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin --bundles app,dmg --config src-tauri/tauri.release.conf.json
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Linux webview dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libwebkit2gtk-4.1-dev \
+            patchelf
+
+      - name: Install pinned Rust toolchain
+        shell: bash
+        run: rustup toolchain install 1.98.0 --profile minimal
+
+      - name: Install additional Rust target
+        if: matrix.target != ''
+        run: rustup target add ${{ matrix.target }} --toolchain 1.98.0
+
+      - name: Install pinned Tauri CLI
+        run: cargo install tauri-cli --version 2.11.4 --locked
+
+      - name: Build and attach native installers
+        uses: tauri-apps/tauri-action@v0.6.2
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          APPLE_SIGNING_IDENTITY: ${{ startsWith(matrix.platform, 'macos') && '-' || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          POKECLICKER_UPDATER_ENDPOINT: https://github.com/${{ github.repository }}/releases/latest/download/latest.json
+          POKECLICKER_UPDATER_PUBKEY: ${{ secrets.POKECLICKER_UPDATER_PUBKEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          args: ${{ matrix.args }}
+          releaseDraft: true
+          releaseName: PokeClicker Desktop v__VERSION__
+          prerelease: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease || false }}
+          retryAttempts: 1
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || 'desktop-v__VERSION__' }}
+          tauriScript: cargo tauri
+          updaterJsonPreferNsis: true

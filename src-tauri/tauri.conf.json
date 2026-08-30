@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PokeClicker",
+  "version": "2.0.0",
+  "identifier": "com.pokeclicker.desktop",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "enableGTKAppId": true,
+    "withGlobalTauri": false,
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Game",
+    "copyright": "PokéClicker Desktop contributors",
+    "createUpdaterArtifacts": false,
+    "icon": [
+      "../build/icons/512x512.png",
+      "../build/icons/256x256.png",
+      "../build/icons/128x128.png",
+      "../build/icons/32x32.png",
+      "../build/icon.icns",
+      "../build/icon.ico"
+    ],
+    "longDescription": "A lightweight desktop wrapper for PokéClicker with offline play, automatic game updates, and Discord Rich Presence.",
+    "shortDescription": "A lightweight desktop client for PokéClicker",
+    "targets": "all",
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": true
+      },
+      "deb": {}
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
+  }
+}

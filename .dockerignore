@@ -1,0 +1,4 @@
+.git
+.cache
+target
+src-tauri/gen/schemas

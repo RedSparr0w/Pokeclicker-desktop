@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'"
+    />
+    <title>PokéClicker Setup</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="setup-card" aria-live="polite">
+      <div class="brand" aria-label="PokéClicker">
+        <span>Poké</span><span>Clicker</span>
+      </div>
+
+      <div class="pokeball" aria-hidden="true">
+        <span></span>
+      </div>
+
+      <h1 id="heading">Preparing your game</h1>
+      <p id="status">Connecting to the PokéClicker update service…</p>
+
+      <div class="progress-track" id="progress-track" aria-hidden="true">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <p class="detail" id="detail">The first launch downloads the game for offline play.</p>
+
+      <button id="retry" type="button" hidden>Try again</button>
+    </main>
+  </body>
+</html>
