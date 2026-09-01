@@ -35,9 +35,6 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     },
-    "win": {
-      "requestedExecutionLevel": "highestAvailable"
-    },
     "linux": {
       "category": "Game",
       "icon": "icon_512x512.png",
