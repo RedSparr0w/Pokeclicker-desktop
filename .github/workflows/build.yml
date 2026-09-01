@@ -1,0 +1,81 @@
+name: Build desktop packages
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            runner: ubuntu-24.04
+            command: dist:linux
+            architecture: x64
+            artifact: linux-x64
+          - name: Windows x64
+            runner: windows-2025
+            command: dist:windows
+            architecture: x64
+            artifact: windows-x64
+          - name: macOS Intel
+            runner: macos-15-intel
+            command: dist:macos
+            architecture: x64
+            artifact: macos-x64
+          - name: macOS Apple Silicon
+            runner: macos-15
+            command: dist:macos
+            architecture: arm64
+            artifact: macos-arm64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build unsigned packages
+        run: npm run ${{ matrix.command }} -- --${{ matrix.architecture }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: pokeclicker-desktop-${{ matrix.artifact }}
+          path: |
+            dist/*.AppImage
+            dist/*.blockmap
+            dist/*.deb
+            dist/*.dmg
+            dist/*.exe
+            dist/*.rpm
+            dist/*.yml
+            dist/*.zip
+          if-no-files-found: error
+          retention-days: 14

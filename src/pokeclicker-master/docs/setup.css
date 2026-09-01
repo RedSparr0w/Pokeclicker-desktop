@@ -1,0 +1,126 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #07111f;
+  color: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  min-height: 360px;
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 20%, rgb(56 189 248 / 22%), transparent 36%),
+    radial-gradient(circle at 80% 80%, rgb(248 113 113 / 18%), transparent 40%),
+    linear-gradient(145deg, #07111f, #172033);
+}
+
+.setup-shell {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  padding: clamp(24px, 6vw, 64px);
+  place-items: center;
+}
+
+.setup-card {
+  display: flex;
+  width: min(560px, 100%);
+  padding: clamp(28px, 6vw, 52px);
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 24px;
+  background: rgb(15 23 42 / 82%);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 35%);
+  text-align: center;
+}
+
+.wordmark {
+  width: min(360px, 90%);
+  height: auto;
+  margin-bottom: 28px;
+}
+
+.pokeball {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 24px;
+  animation: spin 1.1s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+  filter: drop-shadow(0 8px 16px rgb(0 0 0 / 30%));
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#detail {
+  min-height: 24px;
+  margin: 10px 0 24px;
+  color: #a8b4c7;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 18%);
+}
+
+.progress-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  box-shadow: 0 0 18px rgb(56 189 248 / 55%);
+  transition: width 180ms ease;
+}
+
+.progress-track.indeterminate .progress-bar {
+  width: 38%;
+  animation: slide 1.4s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(365%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pokeball,
+  .progress-track.indeterminate .progress-bar {
+    animation-duration: 3s;
+  }
+}

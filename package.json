@@ -1,53 +1,119 @@
 {
   "name": "pokeclicker-desktop",
   "version": "1.2.0",
-  "description": "PokeClicker Desktop",
+  "description": "A secure, cross-platform desktop client for PokéClicker",
+  "desktopName": "pokeclicker-desktop.desktop",
   "repository": {
     "type": "git",
     "url": "https://github.com/RedSparr0w/Pokeclicker-desktop.git"
   },
+  "homepage": "https://github.com/RedSparr0w/Pokeclicker-desktop",
+  "bugs": {
+    "url": "https://github.com/RedSparr0w/Pokeclicker-desktop/issues"
+  },
   "main": "src/main.js",
   "scripts": {
-    "start": "electron ./",
-    "dist:32": "electron-builder --ia32",
-    "dist:64": "electron-builder --x64 -c.artifactName=${productName}-64bit-setup-${version}.${ext}",
-    "win": "electron-builder --windows portable",
-    "mac": "electron-builder --mac",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "smoke": "electron . --smoke-test=setup",
+    "smoke:game": "electron . --smoke-test=game",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "lint": "eslint .",
+    "audit": "npm audit --omit=dev --audit-level=high",
+    "check": "npm run lint && npm test",
+    "pack": "electron-builder --dir --publish never",
+    "dist": "electron-builder --publish never",
+    "dist:linux": "electron-builder --linux AppImage deb rpm --publish never",
+    "dist:windows": "electron-builder --windows nsis portable --publish never",
+    "dist:macos": "electron-builder --mac dmg zip --publish never"
   },
   "author": {
     "name": "RedSparr0w",
     "email": "desktop@pokeclicker.com"
   },
   "license": "ISC",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "packageManager": "npm@11.19.0",
   "dependencies": {
-    "adm-zip": "^0.5.9",
-    "discord-rpc": "^4.0.1",
-    "electron-updater": "^5.3.0"
+    "discord-rpc": "4.0.1",
+    "electron-updater": "6.8.9",
+    "semver": "7.8.5",
+    "yauzl": "3.4.0"
   },
   "devDependencies": {
-    "electron": "^39.2.5",
-    "electron-builder": "^23.6.0"
+    "@electron/fuses": "2.1.3",
+    "electron": "44.0.0",
+    "electron-builder": "26.15.7",
+    "eslint": "10.9.1",
+    "globals": "17.11.0",
+    "yazl": "3.3.1"
   },
   "build": {
+    "appId": "pokeclicker.desktop",
     "productName": "PokéClicker",
+    "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "afterPack": "scripts/after-pack.js",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "toolsets": {
+      "appimage": "1.0.3"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "RedSparr0w",
+      "repo": "Pokeclicker-desktop"
+    },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${name}-${version}-windows-${arch}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${name}-${version}-windows-${arch}-portable.${ext}"
     },
     "win": {
-      "requestedExecutionLevel": "highestAvailable"
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.games",
+      "icon": "build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "dmg": {
+      "backgroundColor": "#ffffff"
     },
     "linux": {
       "category": "Game",
-      "icon": "icon_512x512.png",
-      "target": "deb"
-    },
-    "mac": {
-        "target": "zip",
-        "icon": "icon_512x512.png"
-    },
-    "deb": {},
-    "appId": "pokeclicker.desktop"
+      "synopsis": "Play PokéClicker from a native desktop window",
+      "description": "A cross-platform desktop client for PokéClicker with offline play, automatic game updates, and Discord Rich Presence.",
+      "maintainer": "RedSparr0w <desktop@pokeclicker.com>",
+      "executableName": "pokeclicker-desktop",
+      "icon": "build/icons",
+      "syncDesktopName": true,
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ]
+    }
   }
 }
